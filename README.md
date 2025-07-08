@@ -86,10 +86,3 @@ init_web3_frontend/
 - [Next.js文档](https://nextjs.org/docs)
 - [ethers.js文档](https://docs.ethers.org/)
 
-## 📞 联系方式
-
-如果您对这个学习项目有任何建议或想要交流学习心得，欢迎联系我！
-
----
-
-⭐ 如果这个项目对您有帮助，请给个Star支持一下！ 
