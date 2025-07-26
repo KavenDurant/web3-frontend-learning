@@ -9,12 +9,12 @@
  */
 
 import Link from "next/link";
-import { getArticlesList } from "@/lib/api/articles";
-import { parseSearchParams } from "@/lib/utils/url";
 import { Article, ArticleListSearchParams } from "@/lib/types";
+import { parseSearchParams } from "@/lib/utils/url";
 import ArticleCard from "@/components/ArticleCard";
 import Pagination from "@/components/Pagination";
 import EmptyState from "@/components/EmptyState";
+import { getArticlesListServer } from "@/lib/api/articles";
 
 // ISR 配置：每 60 秒重新验证页面内容
 export const revalidate = 60;
@@ -41,11 +41,12 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
   const parsedParams = parseSearchParams(params as Record<string, string | undefined>);
   const currentPage = parsedParams.page || 1;
   const currentTag = parsedParams.tag;
+  const decodedTag = currentTag ? decodeURIComponent(currentTag) : '';
   const currentSearch = parsedParams.search;
   const limit = 6;
 
-  // 通过 API 服务层获取数据，包含错误处理和数据验证
-  const data = await getArticlesList({
+  // 通过服务器端直接获取数据，避免 API 调用
+  const data = await getArticlesListServer({
     page: currentPage,
     limit,
     tag: currentTag,
@@ -57,11 +58,11 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
       {/* 页面标题和筛选信息 */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {currentTag ? `标签: ${currentTag}` : '文章列表'}
+          {decodedTag ? `标签: ${decodedTag}` : '文章列表'}
         </h1>
         <p className="text-gray-600">
           {currentTag
-            ? `筛选标签为 "${currentTag}" 的文章`
+            ? `筛选标签为 "${decodedTag}" 的文章`
             : '发现优质技术文章，分享编程心得'
           }
         </p>
@@ -106,7 +107,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
       {(!data.articles || data.articles.length === 0) && (
         <EmptyState
           type={currentTag ? 'no-tag-results' : 'no-articles'}
-          tag={currentTag}
+          tag={decodedTag}
           searchTerm={currentSearch}
         />
       )}

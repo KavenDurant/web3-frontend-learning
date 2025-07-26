@@ -32,12 +32,12 @@ export class ApiError extends Error {
  * 在服务端和客户端都能正确工作
  */
 export function getBaseUrl(): string {
-  // 在服务端环境中，使用完整的 URL
+  // 在服务端环境中，使用相对路径（指向 Next.js 内置 API 路由）
   if (typeof window === 'undefined') {
-    return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002';
+    return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   }
   
-  // 在客户端环境中，可以使用相对路径
+  // 在客户端环境中，使用相对路径
   return '';
 }
 

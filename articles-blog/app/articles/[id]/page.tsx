@@ -10,7 +10,7 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getArticleById } from "@/lib/api/articles";
+import { getArticleByIdServer } from "@/lib/api/articles";
 import { ArticlePageParams } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils/format";
 
@@ -36,8 +36,8 @@ export default async function ArticleDetailPage({ params }: ArticleDetailPagePro
   const { id } = await params;
 
   try {
-    // 通过 API 服务层获取文章数据
-    const article = await getArticleById(id);
+    // 通过服务器端直接获取文章数据，避免 API 调用
+    const article = await getArticleByIdServer(id);
 
     return (
       <article className="max-w-4xl mx-auto">

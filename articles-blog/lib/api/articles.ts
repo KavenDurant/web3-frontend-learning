@@ -185,3 +185,77 @@ export async function getArticlesList(params: ArticleListParams = {}): Promise<A
 export async function getArticleById(id: string): Promise<Article> {
   return ArticlesAPI.getArticle(id);
 }
+
+/**
+ * 服务器端直接获取文章列表（避免在服务器组件中调用 API 路由）
+ * 
+ * @param params 查询参数
+ * @returns 文章列表响应数据
+ */
+export async function getArticlesListServer(params: ArticleListParams = {}): Promise<ArticleListResponse> {
+  // 直接导入模拟数据，避免 HTTP 请求
+  const { mockArticles } = await import('@/app/api/articles/route');
+  
+  // 设置默认参数
+  const queryParams = {
+    page: params.page || 1,
+    limit: params.limit || 6,
+    ...(params.tag && { tag: params.tag }),
+    ...(params.search && { search: params.search }),
+  };
+
+  // 过滤文章
+  let filteredArticles = [...mockArticles];
+
+  // 按标签过滤
+  if (queryParams.tag) {
+    filteredArticles = filteredArticles.filter(article => 
+      article.tags?.includes(queryParams.tag!)
+    );
+  }
+
+  // 按搜索关键词过滤
+  if (queryParams.search) {
+    filteredArticles = filteredArticles.filter(article =>
+      article.title.toLowerCase().includes(queryParams.search!.toLowerCase()) ||
+      article.content.toLowerCase().includes(queryParams.search!.toLowerCase())
+    );
+  }
+
+  // 分页
+  const startIndex = (queryParams.page - 1) * queryParams.limit;
+  const endIndex = startIndex + queryParams.limit;
+  const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
+
+  return {
+    articles: paginatedArticles,
+    total: filteredArticles.length,
+    page: queryParams.page,
+    limit: queryParams.limit,
+    hasMore: endIndex < filteredArticles.length,
+    totalPages: Math.ceil(filteredArticles.length / queryParams.limit),
+  };
+}
+
+/**
+ * 服务器端直接获取单篇文章（避免在服务器组件中调用 API 路由）
+ * 
+ * @param id 文章 ID
+ * @returns 文章详情
+ */
+export async function getArticleByIdServer(id: string): Promise<Article> {
+  if (!id) {
+    throw new Error('文章 ID 不能为空');
+  }
+
+  // 直接导入模拟数据，避免 HTTP 请求
+  const { mockArticles } = await import('@/app/api/articles/route');
+  
+  const article = mockArticles.find(article => article.id === id);
+  
+  if (!article) {
+    throw new Error('文章不存在');
+  }
+
+  return article;
+}
